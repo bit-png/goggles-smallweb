@@ -13,7 +13,7 @@ const sites = txt
 			return null;
 		}
 	})
-	.filter(url => !!url)
+	.filter(url => !!url && url!=='www.reddit.com' && url!=='reddit.com')
 	.filter((url, i, array)=>array.indexOf(url) === i);
 console.log("Sites: ")
 console.log(sites);
