@@ -7,7 +7,7 @@ const sites = txt
 	.split("\n")
 	.map(url => {
 		try {
-			return (new URL(url)).origin;
+			return (new URL(url)).host;
 		} catch(ex) {
 			//console.error(ex);
 			return null;
@@ -17,8 +17,8 @@ const sites = txt
 	.filter((url, i, array)=>array.indexOf(url) === i);
 console.log("Sites: ")
 console.log(sites);
-fs.writeFileSync('smallweb.goggle', `
-! name: Small web
+fs.writeFileSync('smallweb.goggle',
+`! name: Small web
 ! description: Rerank results based on Kagi's open-source list of smallweb blogs.
 ! public: true
 ! author: bit-png
