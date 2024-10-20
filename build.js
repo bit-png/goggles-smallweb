@@ -33,6 +33,7 @@ fs.writeFileSync('smallweb.goggle',
 ! description: Rerank results based on Kagi's open-source list of smallweb blogs.
 ! public: true
 ! author: bit-png
+! homepage: https://github.com/bit-png/goggles-smallweb/
 ! avatar: #feb319
 
 $discard
