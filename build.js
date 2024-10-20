@@ -22,7 +22,7 @@ fs.writeFileSync('smallweb.goggle',
 ! description: Rerank results based on Kagi's open-source list of smallweb blogs.
 ! public: true
 ! author: bit-png
-! avatar: #9244e0
+! avatar: #feb319
 
 $discard
 ${sites.map(site => `$boost=3,site=${site}`).join("\n")}
