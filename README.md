@@ -16,9 +16,15 @@ From [Kagi][0]:
 
 [0]: https://blog.kagi.com/small-web
 
-## Build instructions
+## Release instructions
 
-To build build the goggle, run 
+Before building, clone this repository and make sure NodeJS is installed.
+
+To build the goggle, run:
 ```
 node build
+```
+Then navigate to [Kagi's Goggle page](https://search.brave.com/goggles/create) and paste the URL. For this repository, it is
+```
+https://github.com/bit-png/goggles-smallweb/blob/main/smallweb.goggle
 ```
