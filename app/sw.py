@@ -27,6 +27,26 @@ from urllib.parse import urlparse
 from feedwerk.atom import AtomFeed, FeedEntry
 #from opml import OpmlDocument
 
+appreciated_feed = None  # Initialize the variable to store the appreciated Atom feed
+
+def generate_appreciated_feed():
+    """Generate Atom feed for appreciated posts"""
+    global appreciated_feed
+    appreciated_feed = AtomFeed(
+        "Kagi Small Web Appreciated",
+        feed_url="https://kagi.com/smallweb/appreciated"
+    )
+    for url_entry in urls_app_cache:
+        url_item, title, author, description = url_entry
+        appreciated_feed.add(
+            title=title,
+            content=description,
+            content_type="html",
+            url=url_item,
+            updated=datetime.utcnow(),
+            author=author,
+        )
+
 DIR_DATA = "data"
 if not os.path.isdir(DIR_DATA):
     # trying to write a file in a non-existent dir
@@ -62,7 +82,7 @@ master_feed = False
 
 
 def update_all():
-    global urls_cache, urls_app_cache, urls_yt_cache,urls_gh_cache,  master_feed
+    global urls_cache, urls_app_cache, urls_yt_cache, urls_gh_cache, master_feed, favorites_dict, appreciated_feed
 
     #url = "http://127.0.0.1:4000"  # testing with local feed
     url = "https://kagi.com/api/v1/smallweb/feed/"
@@ -83,16 +103,20 @@ def update_all():
         if not bool(urls_yt_cache) or bool(new_entries):
             urls_yt_cache = new_entries
 
-        new_entries = update_entries(url + "?gh")  # github sites
+        new_entries = update_entries(url + "?gh")  # github sitesgit push
 
         if not bool(urls_gh_cache) or bool(new_entries):
             urls_gh_cache = new_entries    
         
-        new_entries = update_entries("https://kagi.com/smallweb/appreciated")  # appreciated sites
-        if not bool(urls_app_cache) or bool(new_entries):
-            urls_app_cache = new_entries
-
-            
+        # Prune favorites_dict to only include URLs present in urls_cache or urls_yt_cache
+        current_urls = set(entry[0] for entry in urls_cache + urls_yt_cache)
+        favorites_dict = {url: count for url, count in favorites_dict.items() if url in current_urls}
+        
+        # Build urls_app_cache from appreciated entries in urls_cache
+        urls_app_cache = [entry for entry in urls_cache if entry[0] in favorites_dict]
+        
+        # Generate the appreciated feed
+        generate_appreciated_feed()
        
     except:
         print("something went wrong during update_all")
@@ -329,12 +353,18 @@ def index():
 
 @app.post("/favorite")
 def favorite():
-    global favorites_dict, time_saved_favorites
+    global favorites_dict, time_saved_favorites, urls_app_cache, appreciated_feed
     url = request.form.get("url")
 
     if url:
         # Increment favorites count
         favorites_dict[url] = favorites_dict.get(url, 0) + 1
+
+        # Update urls_app_cache with the new favorite from both regular and YouTube feeds
+        urls_app_cache = [entry for entry in (urls_cache + urls_yt_cache) if entry[0] in favorites_dict]
+        
+        # Regenerate the appreciated feed
+        generate_appreciated_feed()
 
         # Save to disk
         if (datetime.now() - time_saved_favorites).total_seconds() > 60:
@@ -423,33 +453,8 @@ def flag_content():
 
 @app.route("/appreciated")
 def appreciated():
-    global master_feed
-
-    feed = AtomFeed(
-        "Kagi Small Web Appreciated", feed_url="https://kagi.com/smallweb/appreciated"
-    )
-    count = 1
-
-    if master_feed:
-        for entry in master_feed.entries:
-            url = entry.link
-            http_url = url.replace("https://", "http://")
-
-            if (url in favorites_dict or url in notes_dict) or (
-                http_url in favorites_dict or http_url in notes_dict
-            ):
-                count = count + 1
-                feed.add(
-                    entry.title,
-                    getattr(entry, "summary", ""),
-                    content_type="html",
-                    url=entry.link,
-                    updated=parse(entry.updated),
-                    published=parse(entry.published),
-                    author=getattr(entry, "author", ""),
-                )
-
-    return Response(feed.to_string(), mimetype="application/atom+xml")
+    global appreciated_feed
+    return Response(appreciated_feed.to_string(), mimetype="application/atom+xml")
 
 @app.route("/opml")
 def opml():
@@ -474,6 +479,10 @@ try:
         print("Loaded favorites", len(favorites_dict))
 except:
     print("No favorites data found.")
+finally:
+    # Initialize urls_app_cache based on favorites_dict
+    urls_app_cache = []  # Initialize empty in case urls_cache isn't loaded yet
+    generate_appreciated_feed()  # Initialize the appreciated feed
 
 
 notes_dict = {}  # Dictionary to store notes
