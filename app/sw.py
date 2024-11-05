@@ -25,7 +25,6 @@ import os
 import time
 from urllib.parse import urlparse
 from feedwerk.atom import AtomFeed, FeedEntry
-#from opml import OpmlDocument
 
 appreciated_feed = None  # Initialize the variable to store the appreciated Atom feed
 
@@ -167,32 +166,6 @@ def update_entries(url):
     else:
         return False
 
-def update_opml(get_urls=False):
-    global opml_document
-
-    print("Create OPML document")
-
-    # metadata
-    opml_document.date_created = datetime.now()
-    opml_document.title = "Kagi Smallweb Feeds"
-
-    with open("smallweb.txt") as f:
-        for url in f:
-            if get_urls:
-                feed = feedparser.parse(url)
-                desc = None
-                title = None
-                html_url = None
-                if 'description' in feed['feed']:
-                    desc = feed['feed']['description']
-                if 'title' in feed['feed']:
-                    title = feed['feed']['title']
-                if 'link' in feed['feed']:
-                    html_url = feed['feed']['link']
-                opml_document.add_rss(url, url, title=title, description=desc, html_url=html_url, language="en_US")
-            else:
-                opml_document.add_rss(url, url, language="en_US")
-    print("All OPML documents imported")
 
 def load_public_suffix_list(file_path):
     public_suffix_list = set()
@@ -458,7 +431,8 @@ def appreciated():
 
 @app.route("/opml")
 def opml():
-    return Response(opml_document.dumps(), headers={"content-disposition":"attachment; filename=smallweb.opml"}, mimetype="text/x-opml")
+    """OPML endpoint"""
+    return "Currently not supported", 404
 
 time_saved_favorites = datetime.now()
 time_saved_notes = datetime.now()
@@ -507,9 +481,6 @@ except:
 # get feeds
 update_all()
 
-# create opml document (only needs to run once)
-#opml_document = OpmlDocument()
-#update_opml()
 
 # Update feeds every 1 hour
 scheduler = BackgroundScheduler()
