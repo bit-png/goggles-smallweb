@@ -1,8 +1,8 @@
 # Small Web Goggle for Brave Search
 
-This Goggle is made to focus on smaller blogs and personal sites for [Brave Search](https://search.brave.com/) results. To try it out, navigate to:
+This Goggle is made to focus on smaller blogs and personal sites for [Brave Search](https://search.brave.com/) results. To try it out:
 
-**[Small Web](https://search.brave.com/goggles?goggles_id=https%3A%2F%2Fraw.githubusercontent.com%2Fbit-png%2Fgoggles-smallweb%2Fmain%2Fsmallweb.goggle)**
+**🥽 [Search the Small Web in Brave](https://search.brave.com/goggles?goggles_id=https%3A%2F%2Fraw.githubusercontent.com%2Fbit-png%2Fgoggles-smallweb%2Fmain%2Fsmallweb.goggle)**
 
 ## Origin
 
